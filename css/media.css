@@ -1,0 +1,180 @@
+@media screen and (max-width :1200px) {
+    .whatWeDo .allH2 h2 {
+    font-size: 36px;
+}
+.cardInner {
+    height: 64%;
+}
+.allPara p {
+    font-size: 25px;
+}
+.thrivesAllP p {
+    color: black;
+    font-size: 2rem;
+    
+    line-height: 7rem;
+    padding: 6px 0;
+    border-bottom: 1px solid black;
+}
+.myCol {
+
+    margin-bottom: 0px;
+}
+
+/* =============== */
+.mainHeaderContent {
+    position: absolute;
+    top: 10%;
+    left: 0;
+}
+
+    .wrapFirstTwoRows {
+    flex-direction: column !important;
+}
+.firstRow {
+    width: 100%;
+}
+.firstHeading h1 {
+    font-size: 120px;
+    
+}
+.secondRow {
+    width: 100%;
+}
+    .imgWrapper {
+    
+    width: 45%;
+    margin-top: 15px;
+}
+.secondRow {
+    position: unset;
+    top: -35px;
+    align-items: start !important;
+}
+.secondRowPara {
+    width: 73%;
+    font-size: 20px;
+    margin-top: 25px;
+}
+.thirdRow {
+    flex-direction: column;
+    align-items: start !important;
+}
+.thirdRowLeft {
+    width: 65% !important;
+    margin-bottom: 20px;
+}
+.thirdRowRight {
+    width: 100% !important;
+    display: flex;
+    justify-content: space-between;
+}
+.bestAgency i, .WorldClassAgency i {
+    margin-right: 13px;
+    font-size: 19px;
+  
+}
+.thirdRowLeft h5 {
+    
+    font-size: 16px;
+}
+}
+@media screen and (max-width: 992px) {
+    .whatWeDo .allH2 h2 {
+        font-size: 30px;
+    }
+    .mainHeader h2 {
+    font-size: 120px;
+}
+.allPara p {
+        font-size: 19px;
+    }
+    .morePrrojects button::before {
+
+    width: 14px;
+    height: 14px;
+    top: 50%;
+    right: 4px;
+    
+}
+.morePrrojects button {
+    padding: 14px 20px;
+
+}
+    
+}
+@media screen and (max-width:768px) {
+.whereWeThrive {
+  
+    border-top-left-radius: 125px;
+    border-top-right-radius: 125px;
+}
+    .myCol {
+    transform: unset;
+}
+.allPara p {
+        font-size: 16px;
+    }
+    
+    .morePrrojects .wrapper {
+        flex-direction: column;
+    text-align: center;
+    }
+    .whatWeDo .allH2 h2 {
+        font-size: 23px;
+    }
+    .mainHeader h2 {
+        font-size: 90px;
+    }
+
+
+    .logo h2 {
+    font-size: x-large;
+}
+    .thirdRowLeft {
+        flex-direction: column;
+        align-items: start !important;
+    }
+    .bestAgency {
+    margin: 0 0 25px 0;
+}
+.bestAgency {
+    
+    padding: 15px 31px;
+   
+}
+}
+
+@media screen and (max-width:620px) {
+    .firstHeading h1 {
+        font-size: 85px;
+    }
+    .imgWrapper {
+        width: 41%;
+        margin-top: 5px;
+    }
+    .imgWrapper {
+    padding: 1px 7px;
+  
+}
+    .secondRowPara {
+        width: 73%;
+        font-size: 16px;
+        margin-top: 20px;
+    }
+    .lastPartIconWrapper {
+    width: 100px;
+    height: 100px;
+    
+    
+    
+}
+}
+
+@media screen and (max-width:994px) {
+
+    nav ul{
+        display: none ;
+    }
+    
+}

@@ -1,0 +1,4 @@
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 14" class="arrow-icon a-scrollIndicator__icon -bottom">
+                <path d="M0 7.3999h19.2v-1.5H0z" class="line"></path>
+                <path d="M14.3999 12.9727l5.3383-6.18637L14.3999.6" stroke-width="1.5" class="chevron"></path>
+            </svg>
