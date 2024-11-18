@@ -1,12 +1,14 @@
 body{
     background-color: #0f0f0f;
-    height: 8000px;
+   
     font-family:  "Funnel Display", sans-serif;
 }
 html{
 
     /* d5ff3f */
-    --mainColor : #ff3c00;
+    /* ff3c00 */
+
+    --mainColor : #B2FF5A;
     --secondaryDarkGray : #171717;
     --secondaryLightGray :#292929;
     --mainParagraphGray:#909090;
@@ -135,7 +137,7 @@ nav ul li {
 }
 .menuItem p:hover a {
     /* color: var(--mainColor); */
-    color: #FF6F07;
+    color: #B2FF5A;
     /* letter-spacing: 2px; */
 }
 
