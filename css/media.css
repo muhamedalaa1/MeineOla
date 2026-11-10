@@ -178,3 +178,25 @@
     }
     
 }
+
+/* Responsive animation refinements */
+@media screen and (max-width: 899px) {
+  .racesWrapper { overflow: hidden; }
+  .races { width: 100%; flex-wrap: wrap; justify-content: center; }
+  .races h2 { font-size: clamp(3.2rem, 12vw, 7rem); padding: .08em .18em; }
+  .gitarLine { height: 260px; }
+  .gitarLine svg { height: 260px; }
+}
+@media screen and (max-width: 620px) {
+  .mainHeader { padding: 110px 0; }
+  .mainHeader h2 { font-size: clamp(3.4rem, 16vw, 5.8rem); }
+  .whatWeDo { padding: 110px 0; }
+  .whatWeDo .allH2 h2 { line-height: 1.25; }
+  .thrivesAllP p { font-size: clamp(1.2rem, 6vw, 2rem); line-height: 1.5; padding: 18px 0; }
+  .menuItem p { font-size: clamp(2rem, 9vw, 3rem); }
+  .myCol { min-height: auto; margin-bottom: 45px; }
+  .cardInner { height: auto; }
+  .cardInner img { height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+  .thirdRowLeft { width: 100% !important; }
+  .bestAgency, .WorldClassAgency { max-width: 100%; }
+}
