@@ -1,413 +1,244 @@
-
-// DomContentLoaded make u sure that the document loaded totally 
-document.addEventListener("DOMContentLoaded",function(){
-  // mouse follower
-  function getFollowMouse() {
-    document.addEventListener("mousemove", function (e) {
-      gsap.to(".cursor", {
-        x: e.clientX,
-        y: e.clientY,
-        duration: 0.5,
-        ease: "back.out",
-      });
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.gsap) {
+    console.warn("GSAP could not be loaded. The page will use its CSS fallbacks.");
+    return;
   }
-  getFollowMouse();
-  // moving to right or left depends on scrooling direction
-  function getWheelMove() {
-    window.addEventListener("wheel", function (e) {
-      if (e.deltaY > 0) {
-        console.log("to right");
-        gsap.to(".move .inner", {
-          transform: "translateX(-200%)",
-          duration: 4,
-          repeat: -1,
-          ease: "none.none",
-        });
 
-        gsap.to(".move .inner img", {
-          rotate: 0,
-        });
-      } else {
-        console.log("to left");
-        gsap.to(".move .inner", {
-          transform: "translateX(0%)",
-          duration: 4,
-          repeat: -1,
-          ease: "none.none",
-        });
+  gsap.registerPlugin(ScrollTrigger);
 
-        gsap.to(".move .inner img", {
-          rotate: 180,
-        });
-      }
-    });
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isTouch = window.matchMedia("(pointer: coarse)").matches;
+
+  // Keep the experience calm and accessible when the visitor requests less motion.
+  if (reduceMotion) {
+    gsap.set([".cursor", ".overlay"], { clearProps: "all" });
+    ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    return;
   }
-  getWheelMove();
-  // menu nav animation
-  function getMenuAnimat() {
-    const toggleBtn = document.querySelector(".burger");
 
-    let isOpen = false;
+  // Custom cursor: quickTo avoids creating a new tween on every mouse event.
+  const cursor = document.querySelector(".cursor");
+  if (cursor && !isTouch) {
+    gsap.set(cursor, { xPercent: -50, yPercent: -50, scale: 0.7, opacity: 0 });
+    const moveX = gsap.quickTo(cursor, "x", { duration: 0.35, ease: "power3.out" });
+    const moveY = gsap.quickTo(cursor, "y", { duration: 0.35, ease: "power3.out" });
 
-    gsap.set(".menuItem p", { y: 225 });
+    window.addEventListener("pointermove", (event) => {
+      moveX(event.clientX);
+      moveY(event.clientY);
+      gsap.to(cursor, { opacity: 1, duration: 0.2, overwrite: "auto" });
+    }, { passive: true });
 
-    const tl = gsap.timeline({ paused: true });
-    tl.to(".overlay", {
-      duration: 1.5,
-      clipPath: "polygon(0% 0% , 100% 0% ,100% 100%, 0% 100%)",
-      ease: "power4.inOut",
+    document.addEventListener("pointerleave", () => {
+      gsap.to(cursor, { opacity: 0, duration: 0.2 });
     });
-    tl.to(
-      ".menuItem p",
-      {
-        duration: 1.5,
-        y: 0,
-        stagger: 0.2,
-        ease: "power4.out",
+
+    document.querySelectorAll("a, button, .cardInner, .clientInner").forEach((item) => {
+      item.addEventListener("pointerenter", () => gsap.to(cursor, {
+        scale: 1.8, duration: 0.25, ease: "power2.out", overwrite: "auto"
+      }));
+      item.addEventListener("pointerleave", () => gsap.to(cursor, {
+        scale: 0.7, duration: 0.25, ease: "power2.out", overwrite: "auto"
+      }));
+    });
+  } else if (cursor) {
+    cursor.hidden = true;
+  }
+
+  // Navigation overlay.
+  const burger = document.querySelector(".burger");
+  const overlay = document.querySelector(".overlay");
+  const menuItems = gsap.utils.toArray(".menuItem p");
+  let menuOpen = false;
+
+  if (burger && overlay) {
+    gsap.set(overlay, { clipPath: "inset(0 0 100% 0)", pointerEvents: "none" });
+    gsap.set(menuItems, { yPercent: 110, rotate: 3 });
+
+    const menuTimeline = gsap.timeline({
+      paused: true,
+      defaults: { ease: "power4.inOut" },
+      onStart: () => {
+        overlay.style.pointerEvents = "auto";
+        burger.setAttribute("aria-expanded", "true");
       },
-      "-=1"
-    );
-
-    toggleBtn.addEventListener("click", function () {
-      if (isOpen) {
-        tl.reverse();
-        // document.querySelector("header").classList.toggle("vh-100");
-      } else {
-        tl.play();
-        // document.querySelector("header").classList.toggle("vh-100");
+      onReverseComplete: () => {
+        overlay.style.pointerEvents = "none";
+        burger.setAttribute("aria-expanded", "false");
       }
+    });
 
-      isOpen = !isOpen;
+    menuTimeline
+      .to(overlay, { clipPath: "inset(0 0 0% 0)", duration: 0.85 })
+      .to(menuItems, {
+        yPercent: 0, rotate: 0, duration: 0.8, stagger: 0.09, ease: "power4.out"
+      }, "-=0.42");
+
+    const closeMenu = () => {
+      if (!menuOpen) return;
+      menuOpen = false;
+      burger.classList.remove("active");
+      menuTimeline.reverse();
+    };
+
+    burger.setAttribute("aria-expanded", "false");
+    burger.setAttribute("aria-label", "Open navigation menu");
+    burger.addEventListener("click", () => {
+      menuOpen = !menuOpen;
+      burger.classList.toggle("active", menuOpen);
+      burger.setAttribute("aria-label", menuOpen ? "Close navigation menu" : "Open navigation menu");
+      menuOpen ? menuTimeline.play() : menuTimeline.reverse();
+    });
+
+    overlay.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
     });
   }
-  getMenuAnimat();
-  // gitar line
-  function getGitalAnimat() {
-    let initialValForLine = `M 10 251 Q 600 250 1190 251`;
-    let finalValForLine = `M 10 251 Q 600 250 1190 251`;
-    const myGitarSec = document.querySelector(".gitarLine");
-    myGitarSec.addEventListener("mousemove", function (e) {
-      console.log(e);
 
-      initialValForLine = `M 10 251 Q ${e.x} ${e.y} 1190 251`;
-      console.log(initialValForLine);
+  // Hero entrance: one coordinated sequence instead of many disconnected tweens.
+  const hero = gsap.timeline({ defaults: { ease: "power3.out" } });
+  hero
+    .from("nav .logo, nav ul li, nav .burger", {
+      y: -28, opacity: 0, duration: 0.75, stagger: 0.1, clearProps: "all"
+    })
+    .from(".firstHeading h1", {
+      yPercent: 22, opacity: 0, duration: 1.05, ease: "power4.out"
+    }, "-=0.25")
+    .from(".secondRow .imgWrapper", {
+      y: 35, scale: 0.94, opacity: 0, duration: 0.85
+    }, "-=0.7")
+    .from(".secondRow .secondRowPara", {
+      y: 24, opacity: 0, duration: 0.65
+    }, "-=0.5")
+    .from(".bestAgency, .WorldClassAgency, .thirdRowRight", {
+      y: 22, opacity: 0, duration: 0.6, stagger: 0.12
+    }, "-=0.35");
 
-      console.log(initialValForLine);
-
-      gsap.to("svg path", {
-        attr: { d: initialValForLine },
-        duration: 0.2,
+  // Reusable reveal animation for headings, copy and client marks.
+  const reveal = (targets, options = {}) => {
+    gsap.fromTo(targets,
+      { y: options.y ?? 48, opacity: 0, filter: "blur(7px)" },
+      {
+        y: 0, opacity: 1, filter: "blur(0px)",
+        duration: options.duration ?? 0.9,
+        stagger: options.stagger ?? 0.08,
         ease: "power3.out",
-      });
-    });
+        clearProps: "filter",
+        scrollTrigger: {
+          trigger: options.trigger || targets,
+          start: options.start || "top 84%",
+          once: true
+        }
+      }
+    );
+  };
 
-    myGitarSec.addEventListener("mouseleave", function (e) {
-      gsap.to("svg path", {
-        attr: { d: finalValForLine },
-        ease: "elastic.out(1,0.2)",
-        duration: 1.5,
+  reveal(".whatWeDo span", { y: 20, duration: 0.7 });
+  reveal(".whatWeDo .allH2 h2", { trigger: ".whatWeDo", y: 55, stagger: 0.12 });
+  reveal(".ourCards .mainHeader h2", { trigger: ".ourCards .mainHeader", y: 65, stagger: 0.12 });
+  reveal(".morePrrojects .allPara p", { trigger: ".morePrrojects", y: 28, stagger: 0.08 });
+  reveal(".whereWeThrive .mainHeader h2", { trigger: ".whereWeThrive .mainHeader", y: 60, stagger: 0.12 });
+  reveal(".thrivesAllP p", { trigger: ".thrivesAllP", y: 30, stagger: 0.1 });
+  reveal(".clients .mainHeader h2", { trigger: ".clients .mainHeader", y: 60, stagger: 0.12 });
+  reveal(".clientsCol", { trigger: ".clients .row", y: 28, stagger: 0.07, duration: 0.75 });
+
+  // Portfolio cards: soft entrance, image depth and a restrained hover lift.
+  gsap.utils.toArray(".myCol").forEach((card, index) => {
+    const image = card.querySelector("img");
+    gsap.fromTo(card,
+      { y: 70, opacity: 0, rotate: index % 2 ? 1.5 : -1.5 },
+      {
+        y: 0, opacity: 1, rotate: 0, duration: 1,
+        ease: "power3.out",
+        scrollTrigger: { trigger: card, start: "top 88%", once: true }
+      }
+    );
+    if (image) {
+      gsap.fromTo(image, { scale: 1.08 }, {
+        scale: 1, duration: 1.2, ease: "power2.out",
+        scrollTrigger: { trigger: card, start: "top 88%", once: true }
+      });
+    }
+    card.addEventListener("pointerenter", () => {
+      if (!isTouch) gsap.to(card, { y: -8, duration: 0.35, ease: "power2.out" });
+    });
+    card.addEventListener("pointerleave", () => {
+      if (!isTouch) gsap.to(card, { y: 0, duration: 0.45, ease: "power3.out" });
+    });
+  });
+
+  // Interactive elastic line. Coordinates are measured relative to the SVG.
+  const guitarSection = document.querySelector(".gitarLine");
+  const guitarPath = guitarSection?.querySelector("svg path");
+  if (guitarSection && guitarPath) {
+    const restPath = "M 10 251 Q 600 250 1190 251";
+    guitarSection.addEventListener("pointermove", (event) => {
+      const bounds = guitarSection.getBoundingClientRect();
+      const localX = event.clientX - bounds.left;
+      const localY = event.clientY - bounds.top;
+      const controlX = gsap.utils.clamp(10, 1190, localX * (1200 / bounds.width));
+      const controlY = gsap.utils.clamp(0, 500, localY * (500 / bounds.height));
+      gsap.to(guitarPath, {
+        attr: { d: `M 10 251 Q ${controlX} ${controlY} 1190 251` },
+        duration: 0.35, ease: "power3.out", overwrite: "auto"
+      });
+    }, { passive: true });
+    guitarSection.addEventListener("pointerleave", () => {
+      gsap.to(guitarPath, {
+        attr: { d: restPath }, duration: 1.1, ease: "elastic.out(1, 0.25)"
       });
     });
   }
-  getGitalAnimat();
 
-  let tl = gsap.timeline();
-  // header timeline animation
-  tl.from("nav .logo , nav ul li , nav button", {
-    y: -60,
-    opacity: 0,
-    duration: 0.9,
-    stagger: 0.19,
-  });
-  tl.from(".mainHeaderContent .firstHeading", {
-    y: 60,
-    opacity: 0,
-    duration: 0.3,
-  });
-  tl.from(".secondRow .imgWrapper", {
-    x: 60,
-    opacity: 0,
-    duration: 0.3,
-  });
-  tl.from(".secondRow .secondRowPara", {
-    y: 60,
-    opacity: 0,
-    duration: 0.3,
-  });
-  tl.from(".bestAgency , .WorldClassAgency", {
-    x: -60,
-    opacity: 0,
-    duration: 0.3,
-  });
-  tl.from(".thirdRowRight", {
-    x: 60,
-    opacity: 0,
-    duration: 0.3,
-  });
-  //end header timeline animation
-
-  gsap.from(".whatWeDo .allH2 h2", {
-    y: 150,
-    duration: 1,
-    opacity: 0,
-    stagger: 0.25,
-    scrollTrigger: {
-      trigger: ".whatWeDo .allH2 h2",
-      scroller: "body",
-      start: "top 70%",
-    },
-  });
-
-  gsap.from(".ourCards .mainHeader h2", {
-    y: 150,
-    duration: 0.8,
-    stagger: 0.4,
-    opacity: 0,
-    scrollTrigger: {
-      trigger: ".ourCards .mainHeader h2",
-      scroller: "body",
-      start: "top 50%",
-    },
-  });
-
-  gsap.from(".morePrrojects .allPara p", {
-    y: 150,
-    opacity: 0,
-    duration: 0.8,
-    stagger: 0.25,
-    scrollTrigger: {
-      trigger: ".morePrrojects .allPara p",
-      scroller: "body",
-      start: "top 90%",
-    },
-  });
-
-  gsap.from(".whereWeThrive .mainHeader h2", {
-    y: 150,
-    duration: 0.8,
-    stagger: 0.4,
-    opacity: 0,
-    scrollTrigger: {
-      trigger: ".whereWeThrive .mainHeader h2",
-      scroller: "body",
-      start: "top 60%",
-    },
-  });
-
-  gsap.from(".clients .mainHeader h2", {
-    y: 150,
-    duration: 0.8,
-    stagger: 0.4,
-    opacity: 0,
-    scrollTrigger: {
-      trigger: ".clients .mainHeader h2",
-      scroller: "body",
-      start: "top 60%",
-    },
-  });
-
-  gsap.from(".clients .row .clientsCol", {
-    y: -30,
-    duration: 1,
-    opacity: 0,
-    stagger: 0.19,
-    scrollTrigger: {
-      trigger: ".clients .row .clientsCol",
-      scroller: "body",
-    },
-  });
-
-
-
-
-
-
-
-
-
-
-
-  // start cards animation
-
-  let line1LeftCard = gsap.timeline({
-    scrollTrigger: {
-      trigger: ".myCol.myCol1",
-      scroller: "body",
-     
-      start: "top 80%",
-      scrub: 1,
-      ease: "power1.inOut",
-    },
-  });
-
-  
-  
-   let line1RightCard = gsap.timeline({
-     scrollTrigger: {
-       trigger: ".myCol.myCol2",
-       scroller: "body",
-      
-       start: "top 80%",
-       scrub: 1,
-       ease: "power1.inOut",
-     },
-   });
-
-  
-
-
-
-
-
-   let line2LeftCard = gsap.timeline({
-     scrollTrigger: {
-       trigger: ".myCol.myCol3",
-       scroller: "body",
-       
-       start: "top 80%",
-       scrub: 1,
-       ease: "power1.inOut",
-     },
-   });
-
-
-
-   let line2RightCard = gsap.timeline({
-     scrollTrigger: {
-       trigger: ".myCol.myCol4",
-       scroller: "body",
-       
-       start: "top 80%",
-       scrub: 1,
-       ease: "power1.inOut",
-     },
-   });
-
- 
-
-   
-   
-   if(window.innerWidth < 768){
-    line2RightCard.to(".myCol.myCol4", {
-      x: 0,
-      duration: 0.1,
-      rotation: 0,
+  // Seamless marquee. The duplicated content in the HTML creates the loop.
+  const marqueeItems = gsap.utils.toArray(".move .inner");
+  if (marqueeItems.length) {
+    gsap.to(marqueeItems, {
+      xPercent: -105, duration: 24, ease: "none", repeat: -1,
+      modifiers: { xPercent: gsap.utils.wrap(-105, 0) }
     });
+  }
 
-
-    line2LeftCard.to(".myCol.myCol3", {
-      x: 0,
-      duration: 0.1,
-      rotation: 0,
-    });
-
-    line1RightCard.to(".myCol.myCol2", {
-      x: 0,
-      duration: 0.1,
-      rotation: 0,
-    });
-
-    line1LeftCard.to(".myCol.myCol1", {
-      x: 0,
-      duration: 0.1,
-      rotation: 0,
-    });
-
-   }else if (window.innerWidth > 768 && window.innerWidth< 900) {
-    line2RightCard.to(".myCol.myCol4", {
-      x: 120,
-      duration: 0.1,
-      rotation: 10,
-    });
-
-    line2LeftCard.to(".myCol.myCol3", {
-      x: -120,
-      duration: 0.1,
-      rotation: -10,
-    });
-
-    line1RightCard.to(".myCol.myCol2", {
-      x: 120,
-      duration: 0.1,
-      rotation: 10,
-    });
-
-    line1LeftCard.to(".myCol.myCol1", {
-      x: -120,
-      duration: 0.1,
-      rotation: -10,
-    });
-   } else {
-     line2RightCard.to(".myCol.myCol4", {
-       x: 200,
-       duration: 0.1,
-       rotation: 10,
-     });
-
-     line2LeftCard.to(".myCol.myCol3", {
-       x: -200,
-       duration: 0.1,
-       rotation: -10,
-     });
-
-     line1RightCard.to(".myCol.myCol2", {
-       x: 200,
-       duration: 0.1,
-       rotation: 10,
-     });
-
-     line1LeftCard.to(".myCol.myCol1", {
-       x: -200,
-       duration: 0.1,
-       rotation: -10,
-     });
-   }
- 
-
-
-  //  scroll horizontal
-
+  // Horizontal storytelling is desktop-only; mobile keeps natural vertical flow.
   const races = document.querySelector(".races");
-  console.log(races.offsetWidth);
-
-  function getScrollAmount() {
-    let racesWidth = races.scrollWidth;
-    return -(racesWidth - window.innerWidth);
+  if (races) {
+    ScrollTrigger.matchMedia({
+      "(min-width: 900px)": () => {
+        const getDistance = () => Math.max(0, races.scrollWidth - window.innerWidth);
+        gsap.to(races, {
+          x: () => -getDistance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".racesWrapper",
+            start: "top top",
+            end: () => `+=${getDistance()}`,
+            pin: true,
+            scrub: 1,
+            invalidateOnRefresh: true
+          }
+        });
+      },
+      "(max-width: 899px)": () => {
+        gsap.set(races, { clearProps: "transform" });
+      }
+    });
   }
 
-  const tween = gsap.to(races, {
-    x: getScrollAmount,
-    duration: 3,
-    ease: "none",
-  });
+  // Gentle depth on the hero background on larger screens.
+  if (!isTouch) {
+    gsap.to("header", {
+      backgroundPositionY: "35%",
+      ease: "none",
+      scrollTrigger: {
+        trigger: "header",
+        start: "top top",
+        end: "bottom top",
+        scrub: 1
+      }
+    });
+  }
 
-  ScrollTrigger.create({
-    trigger: ".racesWrapper",
-    start: "top 20%",
-    end: () => `+=${getScrollAmount() * -1}`,
-    pin: true,
-    animation: tween,
-    scrub: 1,
-    invalidateOnRefresh: true,
-  });
-
-
-
-
-
-
-
-
-
-
-
-
-
-})
-
-
-
-
-
-  
+  // Refresh measurements after images have loaded.
+  window.addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
+});

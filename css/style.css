@@ -574,3 +574,46 @@ transition: 0.3s all;
 /* footer */
 
 
+
+
+/* Premium motion polish */
+html { scroll-behavior: smooth; }
+body { overflow-x: hidden; }
+.cursor {
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
+}
+header { background-position: center top; }
+nav, .mainHeaderContent, .cardInner, .clientInner { will-change: transform; }
+.menuItem p a { display: inline-block; }
+.menuItem p a:hover { transform: translateY(-3px); }
+.cardInner { position: relative; isolation: isolate; }
+.cardInner img { display: block; will-change: transform; }
+.myCol { will-change: transform, opacity; }
+.clientsCol, .thrivesAllP p { will-change: transform, opacity; }
+.gitarLine svg { max-width: 100%; overflow: visible; }
+.gitarLine svg path { stroke-width: 2; }
+.move { position: relative; }
+.move .inner { will-change: transform; }
+.whereWeThrive .thrivesAllP p { transition: color .3s ease, padding-left .35s ease; }
+.whereWeThrive .thrivesAllP p:hover { padding-left: 18px; color: #688f2d; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--mainColor);
+  outline-offset: 5px;
+}
+@media (pointer: coarse) {
+  .cursor { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
